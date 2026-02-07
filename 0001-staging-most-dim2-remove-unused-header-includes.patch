@@ -1,0 +1,52 @@
+From 3765260bc309dc3ebbec4b7a5bff55b5fd928d6f Mon Sep 17 00:00:00 2001
+From: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+Date: Sun, 8 Feb 2026 02:36:18 +0530
+Subject: [PATCH] staging: most: dim2: remove unused header includes
+
+Remove unused header includes from dim2.c and hal.c to
+reduce unnecessary dependencies and improve compilation time.
+
+Signed-off-by: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+---
+ drivers/staging/most/dim2/dim2.c | 3 ---
+ drivers/staging/most/dim2/hal.c  | 2 --
+ 2 files changed, 5 deletions(-)
+
+diff --git a/drivers/staging/most/dim2/dim2.c b/drivers/staging/most/dim2/dim2.c
+index dad2abe6c0c9..b406cc0415b5 100644
+--- a/drivers/staging/most/dim2/dim2.c
++++ b/drivers/staging/most/dim2/dim2.c
+@@ -7,9 +7,7 @@
+ 
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+ 
+-#include <linux/module.h>
+ #include <linux/printk.h>
+-#include <linux/kernel.h>
+ #include <linux/init.h>
+ #include <linux/platform_device.h>
+ #include <linux/interrupt.h>
+@@ -17,7 +15,6 @@
+ #include <linux/io.h>
+ #include <linux/clk.h>
+ #include <linux/dma-mapping.h>
+-#include <linux/sched.h>
+ #include <linux/kthread.h>
+ #include <linux/most.h>
+ #include <linux/of.h>
+diff --git a/drivers/staging/most/dim2/hal.c b/drivers/staging/most/dim2/hal.c
+index 6abe3ab2b2cf..50ff3ca37073 100644
+--- a/drivers/staging/most/dim2/hal.c
++++ b/drivers/staging/most/dim2/hal.c
+@@ -11,8 +11,6 @@
+ #include "hal.h"
+ #include "errors.h"
+ #include "reg.h"
+-#include <linux/stddef.h>
+-#include <linux/kernel.h>
+ #include <linux/io.h>
+ 
+ /*
+-- 
+2.52.0
+
