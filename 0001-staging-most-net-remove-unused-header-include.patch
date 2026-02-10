@@ -1,0 +1,28 @@
+From 6112bae9b32474dee2e1b4f6de79f90f30a03f9e Mon Sep 17 00:00:00 2001
+From: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+Date: Tue, 10 Feb 2026 21:21:09 +0530
+Subject: [PATCH] staging: most: net: remove unused header include
+
+Remove unused header include from net.c to
+reduce unnecessary dependencies and improve compilation time.
+
+Signed-off-by: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+---
+ drivers/staging/most/net/net.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/staging/most/net/net.c b/drivers/staging/most/net/net.c
+index 1d1fe8bff7ee..fffdb60cd230 100644
+--- a/drivers/staging/most/net/net.c
++++ b/drivers/staging/most/net/net.c
+@@ -10,7 +10,6 @@
+ #include <linux/module.h>
+ #include <linux/netdevice.h>
+ #include <linux/etherdevice.h>
+-#include <linux/slab.h>
+ #include <linux/init.h>
+ #include <linux/list.h>
+ #include <linux/wait.h>
+-- 
+2.53.0
+
