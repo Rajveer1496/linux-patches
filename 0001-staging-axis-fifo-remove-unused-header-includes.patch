@@ -1,0 +1,42 @@
+From bc6de47a0a815a8a89792059deddb04d543f00f6 Mon Sep 17 00:00:00 2001
+From: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+Date: Sat, 14 Feb 2026 19:01:29 +0530
+Subject: [PATCH] staging: axis-fifo: remove unused header includes
+
+Remove unused header includes from axis-fifo.c to
+reduce unnecessary dependencies and improve compilation time.
+
+Replaced kernel.h include with container_of.h to directly
+include dependency instead of using it indirectly via kernel.h .
+
+Signed-off-by: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+---
+ drivers/staging/axis-fifo/axis-fifo.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/drivers/staging/axis-fifo/axis-fifo.c b/drivers/staging/axis-fifo/axis-fifo.c
+index 509d620d6ce7..c90bf2d841ce 100644
+--- a/drivers/staging/axis-fifo/axis-fifo.c
++++ b/drivers/staging/axis-fifo/axis-fifo.c
+@@ -14,7 +14,7 @@
+  * ----------------------------
+  */
+ 
+-#include <linux/kernel.h>
++#include <linux/container_of.h>
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
+ #include <linux/wait.h>
+@@ -27,9 +27,6 @@
+ #include <linux/io.h>
+ #include <linux/moduleparam.h>
+ #include <linux/interrupt.h>
+-#include <linux/param.h>
+-#include <linux/fs.h>
+-#include <linux/types.h>
+ #include <linux/uaccess.h>
+ #include <linux/jiffies.h>
+ #include <linux/miscdevice.h>
+-- 
+2.53.0
+
