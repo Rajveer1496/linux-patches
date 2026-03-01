@@ -1,0 +1,68 @@
+From cd7ba926a27e8e94482eee88a98f97f9481b460b Mon Sep 17 00:00:00 2001
+From: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+Date: Sun, 8 Feb 2026 04:31:49 +0530
+Subject: [PATCH v2] crypto: drbg - convert to guard(mutex)
+
+Replaced old manual mutex locking/unlocking with
+new safe guard(mutex) in drbg_instantiate().
+This ensures mutex gets unlocked on every return and prevents deadlocks.
+
+Signed-off-by: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+---
+v2: Fix linux/ header ordering alphabetically
+---
+ crypto/drbg.c | 13 ++++---------
+ 1 file changed, 4 insertions(+), 9 deletions(-)
+
+diff --git a/crypto/drbg.c b/crypto/drbg.c
+index 1d433dae9955..5dba9be568bd 100644
+--- a/crypto/drbg.c
++++ b/crypto/drbg.c
+@@ -100,8 +100,9 @@
+ #include <crypto/drbg.h>
+ #include <crypto/df_sp80090a.h>
+ #include <crypto/internal/cipher.h>
+-#include <linux/kernel.h>
++#include <linux/cleanup.h>
+ #include <linux/jiffies.h>
++#include <linux/kernel.h>
+ #include <linux/string_choices.h>
+ 
+ /***************************************************************
+@@ -1349,7 +1350,7 @@ static int drbg_instantiate(struct drbg_state *drbg, struct drbg_string *pers,
+ 
+ 	pr_devel("DRBG: Initializing DRBG core %d with prediction resistance "
+ 		 "%s\n", coreref, str_enabled_disabled(pr));
+-	mutex_lock(&drbg->drbg_mutex);
++	guard(mutex)(&drbg->drbg_mutex);
+ 
+ 	/* 9.1 step 1 is implicit with the selected DRBG type */
+ 
+@@ -1370,7 +1371,7 @@ static int drbg_instantiate(struct drbg_state *drbg, struct drbg_string *pers,
+ 
+ 		ret = drbg_alloc_state(drbg);
+ 		if (ret)
+-			goto unlock;
++			return ret;
+ 
+ 		ret = drbg_prepare_hrng(drbg);
+ 		if (ret)
+@@ -1384,15 +1385,9 @@ static int drbg_instantiate(struct drbg_state *drbg, struct drbg_string *pers,
+ 	if (ret && !reseed)
+ 		goto free_everything;
+ 
+-	mutex_unlock(&drbg->drbg_mutex);
+-	return ret;
+-
+-unlock:
+-	mutex_unlock(&drbg->drbg_mutex);
+ 	return ret;
+ 
+ free_everything:
+-	mutex_unlock(&drbg->drbg_mutex);
+ 	drbg_uninstantiate(drbg);
+ 	return ret;
+ }
+-- 
+2.53.0
+
