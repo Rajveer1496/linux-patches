@@ -1,0 +1,44 @@
+From fd270d294c9d9eb007317711237bdef93aa65763 Mon Sep 17 00:00:00 2001
+From: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+Date: Sat, 7 Mar 2026 02:24:46 +0530
+Subject: [PATCH v2 3/3] iio: accel: adxl372: convert to guard(mutex)
+
+---
+ drivers/iio/accel/adxl372.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/iio/accel/adxl372.c b/drivers/iio/accel/adxl372.c
+index 28a8793a53b6..24a79f61900d 100644
+--- a/drivers/iio/accel/adxl372.c
++++ b/drivers/iio/accel/adxl372.c
+@@ -7,6 +7,7 @@
+ 
+ #include <linux/bitfield.h>
+ #include <linux/bitops.h>
++#include <linux/cleanup.h>
+ #include <linux/interrupt.h>
+ #include <linux/irq.h>
+ #include <linux/module.h>
+@@ -336,17 +337,14 @@ static ssize_t adxl372_write_threshold_value(struct iio_dev *indio_dev, unsigned
+ 	struct adxl372_state *st = iio_priv(indio_dev);
+ 	int ret;
+ 
+-	mutex_lock(&st->threshold_m);
++	guard(mutex)(&st->threshold_m);
+ 	ret = regmap_write(st->regmap, addr, ADXL372_THRESH_VAL_H_SEL(threshold));
+ 	if (ret < 0)
+-		goto unlock;
++		return ret;
+ 
+ 	ret = regmap_update_bits(st->regmap, addr + 1, GENMASK(7, 5),
+ 				 ADXL372_THRESH_VAL_L_SEL(threshold) << 5);
+ 
+-unlock:
+-	mutex_unlock(&st->threshold_m);
+-
+ 	return ret;
+ }
+ 
+-- 
+2.53.0
+

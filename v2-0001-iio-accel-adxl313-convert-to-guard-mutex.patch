@@ -1,0 +1,45 @@
+From 2fc4e7630f27b5ac83b0612cf188d40d541f8b7d Mon Sep 17 00:00:00 2001
+From: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+Date: Sat, 7 Mar 2026 02:24:46 +0530
+Subject: [PATCH v2 1/3] iio: accel: adxl313: convert to guard(mutex)
+
+---
+ drivers/iio/accel/adxl313_core.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/iio/accel/adxl313_core.c b/drivers/iio/accel/adxl313_core.c
+index 9f5d4d2cb325..94c6023af487 100644
+--- a/drivers/iio/accel/adxl313_core.c
++++ b/drivers/iio/accel/adxl313_core.c
+@@ -8,6 +8,7 @@
+  */
+ 
+ #include <linux/bitfield.h>
++#include <linux/cleanup.h>
+ #include <linux/interrupt.h>
+ #include <linux/module.h>
+ #include <linux/overflow.h>
+@@ -356,18 +357,16 @@ static int adxl313_read_axis(struct adxl313_data *data,
+ {
+ 	int ret;
+ 
+-	mutex_lock(&data->lock);
++	guard(mutex)(&data->lock);
+ 
+ 	ret = regmap_bulk_read(data->regmap,
+ 			       ADXL313_REG_DATA_AXIS(chan->address),
+ 			       &data->transf_buf, sizeof(data->transf_buf));
+ 	if (ret)
+-		goto unlock_ret;
++		return ret;
+ 
+ 	ret = le16_to_cpu(data->transf_buf);
+ 
+-unlock_ret:
+-	mutex_unlock(&data->lock);
+ 	return ret;
+ }
+ 
+-- 
+2.53.0
+
