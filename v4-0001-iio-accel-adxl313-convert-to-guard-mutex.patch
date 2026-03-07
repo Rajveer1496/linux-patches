@@ -1,0 +1,56 @@
+From 87a3270104650814eaa0e9a497e54e06448c3a69 Mon Sep 17 00:00:00 2001
+From: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+Date: Sat, 7 Mar 2026 17:14:32 +0530
+Subject: [PATCH v4 1/2] iio: accel: adxl313: convert to guard(mutex)
+
+Replace manual mutex_lock/mutex_unlock pair with guard(mutex) in
+adxl313_read_axis(). This ensures the mutex is released on all
+return paths and allows returning directly without a goto label.
+
+Signed-off-by: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+---
+v4: Keep ret declaration at top of function.
+v3: Return directly from regmap_bulk_read error path.
+v2: Split into separate patch per driver.
+---
+ drivers/iio/accel/adxl313_core.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/iio/accel/adxl313_core.c b/drivers/iio/accel/adxl313_core.c
+index 9f5d4d2cb325..084037c89ad3 100644
+--- a/drivers/iio/accel/adxl313_core.c
++++ b/drivers/iio/accel/adxl313_core.c
+@@ -8,6 +8,7 @@
+  */
+ 
+ #include <linux/bitfield.h>
++#include <linux/cleanup.h>
+ #include <linux/interrupt.h>
+ #include <linux/module.h>
+ #include <linux/overflow.h>
+@@ -356,19 +357,15 @@ static int adxl313_read_axis(struct adxl313_data *data,
+ {
+ 	int ret;
+ 
+-	mutex_lock(&data->lock);
++	guard(mutex)(&data->lock);
+ 
+ 	ret = regmap_bulk_read(data->regmap,
+ 			       ADXL313_REG_DATA_AXIS(chan->address),
+ 			       &data->transf_buf, sizeof(data->transf_buf));
+ 	if (ret)
+-		goto unlock_ret;
+-
+-	ret = le16_to_cpu(data->transf_buf);
++		return ret;
+ 
+-unlock_ret:
+-	mutex_unlock(&data->lock);
+-	return ret;
++	return le16_to_cpu(data->transf_buf);
+ }
+ 
+ static int adxl313_read_freq_avail(struct iio_dev *indio_dev,
+-- 
+2.53.0
+

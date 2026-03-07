@@ -1,0 +1,27 @@
+From 999d6ca5364556a959c78a4c66f7f14a25c3b872 Mon Sep 17 00:00:00 2001
+From: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+Date: Sat, 7 Mar 2026 17:15:26 +0530
+Subject: [PATCH v4 0/2] iio: accel: convert to guard(mutex)
+
+This series converts manual mutex_lock/mutex_unlock pairs to
+guard(mutex) in two ADXL accelerometer drivers. Each conversion
+also simplifies error handling by removing goto labels and
+returning directly on error paths.
+
+adxl355 was considered but dropped as guard(mutex) leads to
+code duplication due to the STANDBY/MEASUREMENT op_mode pattern,
+making it less readable than the original code.
+
+Ref to v3: [PATCH v3 0/3] iio: accel: convert to guard(mutex)
+
+Rajveer Chaudhari (2):
+  iio: accel: adxl313: convert to guard(mutex)
+  iio: accel: adxl372: convert to guard(mutex)
+
+ drivers/iio/accel/adxl313_core.c | 11 ++++-------
+ drivers/iio/accel/adxl372.c      | 13 +++++--------
+ 2 files changed, 9 insertions(+), 15 deletions(-)
+
+-- 
+2.53.0
+

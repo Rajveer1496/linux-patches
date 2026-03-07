@@ -1,0 +1,56 @@
+From 999d6ca5364556a959c78a4c66f7f14a25c3b872 Mon Sep 17 00:00:00 2001
+From: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+Date: Sat, 7 Mar 2026 17:14:55 +0530
+Subject: [PATCH v4 2/2] iio: accel: adxl372: convert to guard(mutex)
+
+Replace manual mutex_lock/mutex_unlock pair with guard(mutex) in
+adxl372_write_threshold_value(). This ensures the mutex is released
+on all return paths and allows returning directly without a goto label.
+
+Signed-off-by: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+---
+v4: Changelog moved below --- as requested by Jonathan Cameron.
+v3: Return directly from error path without goto.
+v2: Split into separate patch per driver.
+---
+ drivers/iio/accel/adxl372.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/iio/accel/adxl372.c b/drivers/iio/accel/adxl372.c
+index 28a8793a53b6..4bf8656991ea 100644
+--- a/drivers/iio/accel/adxl372.c
++++ b/drivers/iio/accel/adxl372.c
+@@ -7,6 +7,7 @@
+ 
+ #include <linux/bitfield.h>
+ #include <linux/bitops.h>
++#include <linux/cleanup.h>
+ #include <linux/interrupt.h>
+ #include <linux/irq.h>
+ #include <linux/module.h>
+@@ -336,18 +337,14 @@ static ssize_t adxl372_write_threshold_value(struct iio_dev *indio_dev, unsigned
+ 	struct adxl372_state *st = iio_priv(indio_dev);
+ 	int ret;
+ 
+-	mutex_lock(&st->threshold_m);
++	guard(mutex)(&st->threshold_m);
++
+ 	ret = regmap_write(st->regmap, addr, ADXL372_THRESH_VAL_H_SEL(threshold));
+ 	if (ret < 0)
+-		goto unlock;
++		return ret;
+ 
+-	ret = regmap_update_bits(st->regmap, addr + 1, GENMASK(7, 5),
++	return regmap_update_bits(st->regmap, addr + 1, GENMASK(7, 5),
+ 				 ADXL372_THRESH_VAL_L_SEL(threshold) << 5);
+-
+-unlock:
+-	mutex_unlock(&st->threshold_m);
+-
+-	return ret;
+ }
+ 
+ static int adxl372_read_axis(struct adxl372_state *st, u8 addr)
+-- 
+2.53.0
+
