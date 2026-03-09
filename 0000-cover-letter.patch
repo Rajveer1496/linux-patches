@@ -1,0 +1,27 @@
+From ceaf81c58cdfc592369d06852f61b730d8197b44 Mon Sep 17 00:00:00 2001
+From: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+Date: Mon, 9 Mar 2026 19:46:19 +0530
+Subject: [PATCH 0/4] iio: accel: convert to guard(mutex)
+
+This series converts manual mutex_lock/mutex_unlock pairs to
+guard(mutex) in two ADXL accelerometer drivers. Each conversion
+also simplifies error handling by removing goto labels and
+returning directly on error paths.
+
+Also aligned headers alphabetically.
+
+Rajveer Chaudhari (4):
+  iio: accel: bmc150: convert to guard(mutex)
+  iio: accel: mma8452: convert to guard(mutex)
+  iio: accel: mma9551: convert to guard(mutex)
+  iio: accel: sca3000: convert to guard(mutex)
+
+ drivers/iio/accel/bmc150-accel-core.c |  26 +++---
+ drivers/iio/accel/mma8452.c           |  35 ++++----
+ drivers/iio/accel/mma9551.c           |  19 +++--
+ drivers/iio/accel/sca3000.c           | 115 ++++++++++++--------------
+ 4 files changed, 91 insertions(+), 104 deletions(-)
+
+-- 
+2.53.0
+
