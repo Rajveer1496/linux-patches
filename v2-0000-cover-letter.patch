@@ -1,25 +1,29 @@
-From fd270d294c9d9eb007317711237bdef93aa65763 Mon Sep 17 00:00:00 2001
+From f3a76d8abd19c619bd9522f3969468adb597c6b0 Mon Sep 17 00:00:00 2001
 From: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
-Date: Sat, 7 Mar 2026 02:24:56 +0530
-Subject: [PATCH v2 0/3] iio: accel: convert to guard(mutex)
+Date: Mon, 9 Mar 2026 20:57:28 +0530
+Subject: [PATCH v2 0/4] iio: accel: convert to guard(mutex)
 
 This series converts manual mutex_lock/mutex_unlock pairs to
-guard(mutex) in three ADXL accelerometer drivers. Each conversion
+guard(mutex) in two ADXL accelerometer drivers. Each conversion
 also simplifies error handling by removing goto labels and
-returning directly.
+returning directly on error paths.
 
-v2: Split into one patch per driver as requested by David Lechner.
-    Ensured each conversion also simplifies code flow.
+Alphabetically Header alignment dropped in v2.
 
-Rajveer Chaudhari (3):
-  iio: accel: adxl313: convert to guard(mutex)
-  iio: accel: adxl355: convert to guard(mutex)
-  iio: accel: adxl372: convert to guard(mutex)
+Link to v1: https://lore.kernel.org/all/20260309142352.57407-1-
+rajveer.chaudhari.linux@gmail.com/
 
- drivers/iio/accel/adxl313_core.c |  7 +++----
- drivers/iio/accel/adxl355_core.c | 27 ++++++++-------------------
- drivers/iio/accel/adxl372.c      |  8 +++-----
- 3 files changed, 14 insertions(+), 28 deletions(-)
+Rajveer Chaudhari (4):
+  iio: accel: bmc150: convert to guard(mutex)
+  iio: accel: mma8452: convert to guard(mutex)
+  iio: accel: mma9551: convert to guard(mutex)
+  iio: accel: sca3000: convert to guard(mutex)
+
+ drivers/iio/accel/bmc150-accel-core.c | 17 ++---
+ drivers/iio/accel/mma8452.c           | 21 +++---
+ drivers/iio/accel/mma9551.c           | 10 ++-
+ drivers/iio/accel/sca3000.c           | 97 ++++++++++++---------------
+ 4 files changed, 60 insertions(+), 85 deletions(-)
 
 -- 
 2.53.0
