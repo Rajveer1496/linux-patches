@@ -1,27 +1,31 @@
-From 6e14e4140a3936524cde8df2bef66c32aaaa0000 Mon Sep 17 00:00:00 2001
+From d30b95fe8adfeb8d25dee6c2f61431213db3256e Mon Sep 17 00:00:00 2001
 From: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
-Date: Sat, 7 Mar 2026 15:44:13 +0530
-Subject: [PATCH v3 0/3] iio: accel: convert to guard(mutex)
+Date: Thu, 12 Mar 2026 13:36:52 +0530
+Subject: [PATCH v3 0/4] iio: accel: convert to guard(mutex)
 
 This series converts manual mutex_lock/mutex_unlock pairs to
-guard(mutex) in three ADXL accelerometer drivers. Each conversion
+guard(mutex) in two ADXL accelerometer drivers. Each conversion
 also simplifies error handling by removing goto labels and
-returning directly where possible.
+returning directly on error paths.
 
-v3: Remove remaining goto labels completely as requested by David Lechner.
-    Return directly from functions where ret variable is not needed.
-v2: Split into one patch per driver as requested by David Lechner.
-    Ensured each conversion also simplifies code flow.
+v3 : Fixed return statements to make it clear about good/error paths.
+indentation fix and reducing code indent -- as suggested by
+Jonathan Cameron
 
-Rajveer Chaudhari (3):
-  iio: accel: adxl313: convert to guard(mutex)
-  iio: accel: adxl355: convert to guard(mutex)
-  iio: accel: adxl372: convert to guard(mutex)
+Link to v2: https://lore.kernel.org/all/20260309153408.71512-1-
+rajveer.chaudhari.linux@gmail.com/
 
- drivers/iio/accel/adxl313_core.c | 15 ++----
- drivers/iio/accel/adxl355_core.c | 81 ++++++++++++++------------------
- drivers/iio/accel/adxl372.c      | 16 +++----
- 3 files changed, 45 insertions(+), 67 deletions(-)
+Rajveer Chaudhari (4):
+  iio: accel: bmc150: convert to guard(mutex)
+  iio: accel: mma8452: convert to guard(mutex)
+  iio: accel: mma9551: convert to guard(mutex)
+  iio: accel: sca3000: convert to guard(mutex)
+
+ drivers/iio/accel/bmc150-accel-core.c |  22 ++--
+ drivers/iio/accel/mma8452.c           |  21 ++--
+ drivers/iio/accel/mma9551.c           |  10 +-
+ drivers/iio/accel/sca3000.c           | 139 +++++++++++---------------
+ 4 files changed, 81 insertions(+), 111 deletions(-)
 
 -- 
 2.53.0
