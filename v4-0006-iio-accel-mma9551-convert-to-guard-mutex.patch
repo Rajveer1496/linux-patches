@@ -1,0 +1,65 @@
+From 5ba9a63e2b9cfbaf5824464cad30b90bf1831636 Mon Sep 17 00:00:00 2001
+From: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+Date: Sat, 14 Mar 2026 22:09:47 +0530
+Subject: [PATCH v4 6/8] iio: accel: mma9551: convert to guard(mutex)
+
+Replace manual mutex_lock/mutex_unlock pair with guard(mutex) in
+mma9551_event_handler(). This ensures the mutex is
+released on all return paths and allows returning directly
+without a goto label.
+
+Signed-off-by: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+---
+v4: No Changes
+
+v3: No Changes
+
+v2: Dropped Header alignment change
+---
+ drivers/iio/accel/mma9551.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/iio/accel/mma9551.c b/drivers/iio/accel/mma9551.c
+index 31e5c3699c19..0936b148e424 100644
+--- a/drivers/iio/accel/mma9551.c
++++ b/drivers/iio/accel/mma9551.c
+@@ -341,7 +341,7 @@ static irqreturn_t mma9551_event_handler(int irq, void *private)
+ 	u16 reg;
+ 	u8 val;
+ 
+-	mutex_lock(&data->mutex);
++	guard(mutex)(&data->mutex);
+ 
+ 	for (i = 0; i < 3; i++)
+ 		if (irq == data->irqs[i]) {
+@@ -353,7 +353,7 @@ static irqreturn_t mma9551_event_handler(int irq, void *private)
+ 		/* IRQ was triggered on 4th line, which we don't use. */
+ 		dev_warn(&data->client->dev,
+ 			 "irq triggered on unused line %d\n", data->irqs[3]);
+-		goto out;
++		return IRQ_HANDLED;
+ 	}
+ 
+ 	switch (mma_axis) {
+@@ -377,7 +377,7 @@ static irqreturn_t mma9551_event_handler(int irq, void *private)
+ 	if (ret < 0) {
+ 		dev_err(&data->client->dev,
+ 			"error %d reading tilt register in IRQ\n", ret);
+-		goto out;
++		return IRQ_HANDLED;
+ 	}
+ 
+ 	iio_push_event(indio_dev,
+@@ -385,9 +385,6 @@ static irqreturn_t mma9551_event_handler(int irq, void *private)
+ 					  IIO_EV_TYPE_ROC, IIO_EV_DIR_RISING),
+ 		       iio_get_time_ns(indio_dev));
+ 
+-out:
+-	mutex_unlock(&data->mutex);
+-
+ 	return IRQ_HANDLED;
+ }
+ 
+-- 
+2.53.0
+

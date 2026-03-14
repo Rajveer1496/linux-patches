@@ -1,0 +1,51 @@
+From 9530258f3d06de5bf326048d5ef365ff990a9aec Mon Sep 17 00:00:00 2001
+From: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+Date: Sat, 14 Mar 2026 22:11:32 +0530
+Subject: [PATCH v4 7/8] iio: accel: sca3000: sort headers alphabetically
+
+Signed-off-by: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+---
+v4: Patch added in v4
+---
+ drivers/iio/accel/sca3000.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/iio/accel/sca3000.c b/drivers/iio/accel/sca3000.c
+index 4a827be439a2..d61ad12aef78 100644
+--- a/drivers/iio/accel/sca3000.c
++++ b/drivers/iio/accel/sca3000.c
+@@ -7,20 +7,23 @@
+  * See industrialio/accels/sca3000.h for comments.
+  */
+ 
+-#include <linux/interrupt.h>
+-#include <linux/fs.h>
++#include <linux/cleanup.h>
+ #include <linux/device.h>
+-#include <linux/slab.h>
++#include <linux/fs.h>
++#include <linux/interrupt.h>
+ #include <linux/kernel.h>
+-#include <linux/spi/spi.h>
+-#include <linux/sysfs.h>
+ #include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/sysfs.h>
+ #include <linux/uaccess.h>
+-#include <linux/iio/iio.h>
+-#include <linux/iio/sysfs.h>
+-#include <linux/iio/events.h>
++
+ #include <linux/iio/buffer.h>
++#include <linux/iio/events.h>
++#include <linux/iio/iio.h>
+ #include <linux/iio/kfifo_buf.h>
++#include <linux/iio/sysfs.h>
++
++#include <linux/spi/spi.h>
+ 
+ #define SCA3000_WRITE_REG(a) (((a) << 2) | 0x02)
+ #define SCA3000_READ_REG(a) ((a) << 2)
+-- 
+2.53.0
+

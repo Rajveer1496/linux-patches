@@ -1,0 +1,44 @@
+From 62a4906fdc2fd4322eb381dfd7f0cd74a1500d30 Mon Sep 17 00:00:00 2001
+From: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+Date: Sat, 14 Mar 2026 22:07:05 +0530
+Subject: [PATCH v4 5/8] iio: accel: mma9551: sort headers alphabetically
+
+Signed-off-by: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+---
+v4: Patch added in v4
+---
+ drivers/iio/accel/mma9551.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/iio/accel/mma9551.c b/drivers/iio/accel/mma9551.c
+index 02195deada49..31e5c3699c19 100644
+--- a/drivers/iio/accel/mma9551.c
++++ b/drivers/iio/accel/mma9551.c
+@@ -4,17 +4,21 @@
+  * Copyright (c) 2014, Intel Corporation.
+  */
+ 
++#include <linux/cleanup.h>
++#include <linux/delay.h>
+ #include <linux/i2c.h>
+ #include <linux/interrupt.h>
+ #include <linux/mod_devicetable.h>
+ #include <linux/module.h>
++#include <linux/pm_runtime.h>
+ #include <linux/slab.h>
+-#include <linux/delay.h>
++
+ #include <linux/gpio/consumer.h>
++
++#include <linux/iio/events.h>
+ #include <linux/iio/iio.h>
+ #include <linux/iio/sysfs.h>
+-#include <linux/iio/events.h>
+-#include <linux/pm_runtime.h>
++
+ #include "mma9551_core.h"
+ 
+ #define MMA9551_GPIO_COUNT		4
+-- 
+2.53.0
+

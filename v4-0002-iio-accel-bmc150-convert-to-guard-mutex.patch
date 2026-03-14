@@ -1,0 +1,95 @@
+From 2ef0832694b50554bce052b4c066e82773f80b03 Mon Sep 17 00:00:00 2001
+From: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+Date: Sat, 14 Mar 2026 21:59:55 +0530
+Subject: [PATCH v4 2/8] iio: accel: bmc150: convert to guard(mutex)
+
+Replace manual mutex_lock/mutex_unlock pair with guard(mutex)
+in bmc150_accel_buffer_predisable() and
+bmc150_accel_buffer_postenable(). This ensures the mutex is
+released on all return paths and allows returning directly
+without a goto label.
+
+Signed-off-by: Rajveer Chaudhari <rajveer.chaudhari.linux@gmail.com>
+---
+v4: No changes
+
+v3: stop initialising ret=0 at start, making clear about good path.
+moved return ret up into the if (ret) {} block in
+bmc150_accel_buffer_postenable().
+
+v2: Cleaned mutex_unlock and goto in
+bmc150_accel_buffer_postenable(),
+Dropped Header alignment change.
+---
+ drivers/iio/accel/bmc150-accel-core.c | 21 ++++++++-------------
+ 1 file changed, 8 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/iio/accel/bmc150-accel-core.c b/drivers/iio/accel/bmc150-accel-core.c
+index 4eb4293a741d..d3214be54819 100644
+--- a/drivers/iio/accel/bmc150-accel-core.c
++++ b/drivers/iio/accel/bmc150-accel-core.c
+@@ -1483,20 +1483,20 @@ static int bmc150_accel_buffer_preenable(struct iio_dev *indio_dev)
+ static int bmc150_accel_buffer_postenable(struct iio_dev *indio_dev)
+ {
+ 	struct bmc150_accel_data *data = iio_priv(indio_dev);
+-	int ret = 0;
++	int ret;
+ 
+ 	if (iio_device_get_current_mode(indio_dev) == INDIO_BUFFER_TRIGGERED)
+ 		return 0;
+ 
+-	mutex_lock(&data->mutex);
++	guard(mutex)(&data->mutex);
+ 
+ 	if (!data->watermark)
+-		goto out;
++		return 0;
+ 
+ 	ret = bmc150_accel_set_interrupt(data, BMC150_ACCEL_INT_WATERMARK,
+ 					 true);
+ 	if (ret)
+-		goto out;
++		return ret;
+ 
+ 	data->fifo_mode = BMC150_ACCEL_FIFO_MODE_FIFO;
+ 
+@@ -1505,12 +1505,10 @@ static int bmc150_accel_buffer_postenable(struct iio_dev *indio_dev)
+ 		data->fifo_mode = 0;
+ 		bmc150_accel_set_interrupt(data, BMC150_ACCEL_INT_WATERMARK,
+ 					   false);
++		return ret;
+ 	}
+ 
+-out:
+-	mutex_unlock(&data->mutex);
+-
+-	return ret;
++	return 0;
+ }
+ 
+ static int bmc150_accel_buffer_predisable(struct iio_dev *indio_dev)
+@@ -1520,19 +1518,16 @@ static int bmc150_accel_buffer_predisable(struct iio_dev *indio_dev)
+ 	if (iio_device_get_current_mode(indio_dev) == INDIO_BUFFER_TRIGGERED)
+ 		return 0;
+ 
+-	mutex_lock(&data->mutex);
++	guard(mutex)(&data->mutex);
+ 
+ 	if (!data->fifo_mode)
+-		goto out;
++		return 0;
+ 
+ 	bmc150_accel_set_interrupt(data, BMC150_ACCEL_INT_WATERMARK, false);
+ 	__bmc150_accel_fifo_flush(indio_dev, BMC150_ACCEL_FIFO_LENGTH, false);
+ 	data->fifo_mode = 0;
+ 	bmc150_accel_fifo_set_mode(data);
+ 
+-out:
+-	mutex_unlock(&data->mutex);
+-
+ 	return 0;
+ }
+ 
+-- 
+2.53.0
+
